@@ -74,43 +74,6 @@ int prostokatny(int a)
     return 0;
 }
 
-// void dft(std::vector<double>&input , std::vector<std::complex<double>>&output)
-// {
-//     using namespace matplot;
-//     using namespace std;
-//     //const complex<double> j(0.0,1.0);
-//     std::vector<double> x;
-//     std::vector<double> y;
-//     double a = 0;
-//     double b = 0;
-//     int N = input.size();
-//     int K=N;
-//     complex<double> SUM;
-//     //vector<complex<double>> output;
-//     output.reserve(K);
-//     for(int k=0;k<K;k++)
-//     {
-//         SUM=complex<double>(0,0);
-//         for(int n = 0; n < N; n++)
-//         {
-//             a= cos((2 * M_PI * k * n) / N) * input[n];
-//             b= -sin((2 * M_PI * k * n) / N) * input[n];
-//             complex<double> temp (a, b);
-//             SUM+=temp*input[n];
-//             a=0;b=0;
-//         }
-//         output.push_back(SUM);
-//     }
-//     for(int i = 0; i < output.size(); i++)
-//     {
-//         y.push_back(output[i].imag());
-//         x.push_back(output[i].real());
-//         cout << x[i] << "   " << y[i] <<endl;
-//     }
-//     plot(x, y)->line_width(1).color("red");
-//     show();
-// }
-
 std::vector<std::complex<double>> dft(std::vector<double> input)
 {
     using namespace std;
