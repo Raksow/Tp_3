@@ -9,15 +9,23 @@
 
 namespace py = pybind11;
 
-int cosinus(int a)
+std::vector<double> cosinus(int freq)
 {
     using namespace matplot;
     using namespace std;
-    vector<double> x = linspace(0, a * pi);
-    vector<double> y=transform(x, [](auto x) { return cos(x); });
+    vector<double> x, y;
+    int t=1000;
+    for(int i = 1; i < t; i++)
+    {
+        x.push_back(i);
+        y.push_back(cos(2 * 3.14 * freq * 2 * i));
+    }
+
+    // vector<double> x = linspace(0, a * pi);
+    // vector<double> y=transform(x, [](auto x) { return cos(x); });
     plot(x, y)->line_width(1).color("red");
     show();
-    return 0;
+    return y;
 }
 
 int sinus(int a)
@@ -100,7 +108,7 @@ std::vector<std::complex<double>> dft(std::vector<double> input)
     return output;
 }
 
-int signals()
+int signals(std::vector<double> input)
 {
     using namespace std;
     using namespace matplot;
@@ -112,7 +120,7 @@ int signals()
     //std::cout << signal[0] <<"\n"<< signal[1] <<"\n"<< signal[2] <<"\n";
     //cout << signal.size();
     //signal.pop_back();
-    std::vector<std::complex<double>> Fx=dft(signal);
+    std::vector<std::complex<double>> Fx=dft(input);
     std::vector<double> z;
     cout<< "\n"<<"k\t" << setw(12)
     <<"Real\t"<< setw(12) <<"Imag\t"<< setw(12) <<"signal"<<endl;
