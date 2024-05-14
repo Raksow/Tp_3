@@ -6,8 +6,31 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
-
+#include "AudioFile/AudioFile.h"
 namespace py = pybind11;
+
+int pochodna_sygnalu()
+{
+    using namespace matplot;
+    using namespace std;
+    AudioFile<double> audioFile;
+    vector<double> x;
+    vector<double> y;
+    audioFile.load ("test-audio.wav");
+    double samplingRate = audioFile.getSampleRate();
+    vector<double> derivative(signal.size());
+    double dt = 1.0 / samplingRate;
+    for (int i = 0; i < signal.size(); i++) {
+        derivative[i] = (signal[i+1] - signal[i]) /dt;
+        x.push_back(i);
+    }
+    plot(x, derivative)->line_width(2).color("red");
+    xlabel("X");
+    ylabel("Y");
+    show();
+    return 0;
+}
+
 
 std::vector<double> cosinus(int freq)
 {
@@ -146,10 +169,11 @@ int signals(std::vector<double> input)
 PYBIND11_MODULE(tp_3, m) {
     m.doc() = "pybind11 example plugin"; // optional module docstring
 
-    m.def("cosinus", &cosinus, "A function that adds two numbers");
-    m.def("sinus", &sinus, "A function that adds two numbers");
-    m.def("prostokatny", &prostokatny, "A function that adds two numbers");
-    m.def("piloksztaltny", &piloksztaltny, "A function that adds two numbers");
+    m.def("pochodna_sygnalu", &pochodna_sygnalu,"Funkcja generujaca pochodna sygnalu");
+    m.def("cosinus", &cosinus, "Funkcja generujaca wykres cosinusa");
+    m.def("sinus", &sinus, "Funkcja generujaca wykres sinusa");
+    m.def("prostokatny", &prostokatny, "Funkcja generujaca wykres prostokatny");
+    m.def("piloksztaltny", &piloksztaltny, "Funkcja generujaca wykres piloksztaltny");
     m.def("signals", &signals, "A function that adds two numbers");
 
     py::class_<std::vector<double>>(m, "vector_float")
