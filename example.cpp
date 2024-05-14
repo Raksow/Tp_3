@@ -18,9 +18,12 @@ int pochodna_sygnalu()
     vector<double> y;
     audioFile.load ("test-audio.wav");
     double samplingRate = audioFile.getSampleRate();
-    vector<double> derivative(signal.size());
+    vector<double> signal = audioFile.samples[0];
+    int rozmiar=signal.size();
+    if(rozmiar>500) rozmiar=500;
+    vector<double> derivative(rozmiar);
     double dt = 1.0 / samplingRate;
-    for (int i = 0; i < signal.size(); i++) {
+    for (int i = 0; i < rozmiar; i++) {
         derivative[i] = (signal[i+1] - signal[i]) /dt;
         x.push_back(i);
     }
