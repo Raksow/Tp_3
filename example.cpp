@@ -1,22 +1,24 @@
 #include <matplot/matplot.h>
 #include <cmath>
+#include <math.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/complex.h>
 #include <complex>
+#include <string>
 #include <iostream>
 #include <iomanip>
 #include <vector>
 #include "AudioFile/AudioFile.h"
 namespace py = pybind11;
 
-int pochodna_sygnalu()
+int pochodna_sygnalu(std::string name)
 {
     using namespace matplot;
     using namespace std;
     AudioFile<double> audioFile;
     vector<double> x;
     vector<double> y;
-    audioFile.load ("test-audio.wav");
+    audioFile.load (name);
     double samplingRate = audioFile.getSampleRate();
     vector<double> signal = audioFile.samples[0];
     int rozmiar=signal.size();
@@ -24,9 +26,10 @@ int pochodna_sygnalu()
     vector<double> derivative(rozmiar);
     double dt = 1.0 / samplingRate;
     for (int i = 0; i < rozmiar; i++) {
-        derivative[i] = (signal[i+1] - signal[i]) /dt;
+        derivative[i] = (signal[i+1] - signal[i]) / dt;
         x.push_back(i);
     }
+    //plot(x, signal)->line_width(2).color("red");
     plot(x, derivative)->line_width(2).color("red");
     xlabel("X");
     ylabel("Y");
@@ -34,17 +37,16 @@ int pochodna_sygnalu()
     return 0;
 }
 
-
 std::vector<double> cosinus(int freq)
 {
     using namespace matplot;
     using namespace std;
     vector<double> x, y;
-    int t=1000;
-    for(int i = 1; i < t; i++)
+    double t=360;
+    for(double i = 0; i < t; i++)
     {
         x.push_back(i);
-        y.push_back(cos(2 * 3.14 * freq * 2 * i));
+        y.push_back(cos((i * M_PI/180)*freq));
     }
 
     // vector<double> x = linspace(0, a * pi);
@@ -54,18 +56,23 @@ std::vector<double> cosinus(int freq)
     return y;
 }
 
-int sinus(int a)
+std::vector<double> sinus(double freq)
 {
     using namespace matplot;
-    std::vector<double> x = linspace(0, a * pi);
-    std::vector<double> y=transform(x, [](auto x) { return sin(x); });
-    for(int i = 0; i <y.size();i++)
+    using namespace std;
+    vector<double> x, y;
+    double t=360;
+    for(double i = 0; i < t; i++)
     {
-        std::cout << y[i] << std::endl;
+        x.push_back(i);
+        y.push_back(sin((i * M_PI/180)*freq));
     }
+
+    // vector<double> x = linspace(0, a * pi);
+    // vector<double> y=transform(x, [](auto x) { return cos(x); });
     plot(x, y)->line_width(1).color("red");
     show();
-    return 0;
+    return y;
 }
 
 int piloksztaltny(int a)
@@ -123,18 +130,19 @@ std::vector<std::complex<double>> dft(std::vector<double> input)
     {
         SUM=complex<double>(0,0);
         for(int n = 0; n < N; n++)
-    {
-        a=cos((2 * M_PI * k * n) / N);
-        b=-sin((2 * M_PI * k * n) / N);
-        complex<double> temp (a, b);
-        SUM+=temp*input[n];
-        a=0;b=0;
-    }output.push_back(SUM);
+        {
+            a=cos((2 * M_PI * k * n) / N);
+            b=-sin((2 * M_PI * k * n) / N);
+            complex<double> temp (a, b);
+            SUM+=temp*input[n];
+            a=0;b=0;
+        }
+        output.push_back(SUM);
     }
     return output;
 }
 
-int signals(std::vector<double> input)
+std::vector<std::complex<double>> signals(std::vector<double> input)
 {
     using namespace std;
     using namespace matplot;
@@ -165,7 +173,7 @@ int signals(std::vector<double> input)
     
     plot(x, y)->line_width(1).color("red");
     show();
-    return 0;
+    return Fx;
 }
 
 
