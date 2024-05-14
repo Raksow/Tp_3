@@ -37,6 +37,36 @@ int pochodna_sygnalu(std::string name)
     return 0;
 }
 
+std::vector<double> idft(std::vector<std::complex<double>> input)
+{
+    using namespace matplot;
+    using namespace std;
+    double a = 0;
+    double b = 0;
+    int N = input.size();
+    int K=N;
+    double SUM;
+    vector<double> output;
+    vector<double> x;
+    output.reserve(K);
+    for(int k=0;k<K;k++)
+    {
+        for(int n = 0; n < N; n++)
+        {
+            a=cos(2 * M_PI * k * n/N);
+            b=sin(2 * M_PI * k * n/N);
+            
+            SUM+=input[n].real()*a + input[n].imag()*b;
+            a=0;b=0;
+        }
+        output.push_back(SUM/N);
+        x.push_back(k);
+    }
+    plot(x, output)->line_width(1).color("red");
+    show();
+    return output;
+}
+
 std::vector<double> cosinus(int freq)
 {
     using namespace matplot;
@@ -181,6 +211,7 @@ PYBIND11_MODULE(tp_3, m) {
     m.doc() = "pybind11 example plugin"; // optional module docstring
 
     m.def("pochodna_sygnalu", &pochodna_sygnalu,"Funkcja generujaca pochodna sygnalu");
+    m.def("idft", &idft,"Funkcja generujaca pochodna sygnalu");
     m.def("cosinus", &cosinus, "Funkcja generujaca wykres cosinusa");
     m.def("sinus", &sinus, "Funkcja generujaca wykres sinusa");
     m.def("prostokatny", &prostokatny, "Funkcja generujaca wykres prostokatny");
