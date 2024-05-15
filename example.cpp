@@ -41,25 +41,18 @@ std::vector<double> idft(std::vector<std::complex<double>> input)
 {
     using namespace matplot;
     using namespace std;
-    double a = 0;
-    double b = 0;
     int N = input.size();
     int K=N;
-    double SUM;
-    vector<double> output;
+    vector<double> output(N, 0);
     vector<double> x;
-    output.reserve(K);
+    //output.reserve(K);
     for(int k=0;k<K;k++)
     {
         for(int n = 0; n < N; n++)
         {
-            a=cos(2 * M_PI * k * n/N);
-            b=sin(2 * M_PI * k * n/N);
-            
-            SUM+=input[n].real()*a + input[n].imag()*b;
-            a=0;b=0;
+            output[k] += real(input[n])*cos((2 * M_PI * k * n) / N) + imag(input[n])*sin((2 * M_PI * k * n) / N);
         }
-        output.push_back(SUM/N);
+        output[k] /= N;
         x.push_back(k);
     }
     plot(x, output)->line_width(1).color("red");
@@ -149,25 +142,16 @@ std::vector<std::complex<double>> dft(std::vector<double> input)
 {
     using namespace std;
     using namespace matplot;
-    double a = 0;
-    double b = 0;
     int N = input.size();
     int K=N;
-    complex<double> SUM;
-    vector<complex<double>> output;
-    output.reserve(K);
+    vector<complex<double>> output(N, 0);
+    //output.reserve(K);
     for(int k=0;k<K;k++)
     {
-        SUM=complex<double>(0,0);
         for(int n = 0; n < N; n++)
         {
-            a=cos((2 * M_PI * k * n) / N);
-            b=-sin((2 * M_PI * k * n) / N);
-            complex<double> temp (a, b);
-            SUM+=temp*input[n];
-            a=0;b=0;
+            output[k] += input[n] * (cos((2 * M_PI * k * n) / N) - 1i * sin((2 * M_PI * k * n) / N));
         }
-        output.push_back(SUM);
     }
     return output;
 }
@@ -176,27 +160,17 @@ std::vector<std::complex<double>> signals(std::vector<double> input)
 {
     using namespace std;
     using namespace matplot;
-    std::vector<double> x = linspace(0, 2 * pi);
-    std::vector<double> signal = transform(x, [](auto x) { return sin(x); });
+    std::vector<double> x;
     std::vector<double> y;
 
-    //for(int j=0;j<16;j++) signal.push_back(j+1);
-    //std::cout << signal[0] <<"\n"<< signal[1] <<"\n"<< signal[2] <<"\n";
-    //cout << signal.size();
-    //signal.pop_back();
     std::vector<std::complex<double>> Fx=dft(input);
     std::vector<double> z;
-    cout<< "\n"<<"k\t" << setw(12)
-    <<"Real\t"<< setw(12) <<"Imag\t"<< setw(12) <<"signal"<<endl;
-    x.clear();
+    //cout<< "\n"<<"k\t" << setw(12) <<"Real\t"<< setw(12) <<"Imag\t"<< setw(12) <<"signal"<<endl;
     int N = Fx.size();
     for(int i=0;i<=N;i++)
     {
         z.push_back(sqrt(Fx[i].real()*Fx[i].real() + Fx[i].imag()*Fx[i].imag()));
-        cout<<i<<"\t"
-        <<setw(12)<<Fx[i].real() <<"\t"
-        <<setw(12)<<Fx[i].imag() <<"\t"
-        <<setw(12)<<signal[i] <<endl;
+        //cout<<i<<"\t" <<setw(12)<<Fx[i].real() <<"\t" <<setw(12)<<Fx[i].imag() <<"\t" <<setw(12)<<signal[i] <<endl;
         x.push_back(i);
         y.push_back(z[i]);
     }
