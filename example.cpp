@@ -72,11 +72,11 @@ std::vector<double> cosinus(int freq)
     using namespace matplot;
     using namespace std;
     vector<double> x, y;
-    double t=360;
-    for(double i = 0; i < t; i++)
+    double t=1000;
+    for(double i = 0; i < 1; i+=0.001)
     {
         x.push_back(i);
-        y.push_back(cos((i * M_PI/180)*freq));
+        y.push_back(cos(2 * M_PI * freq * i));
     }
 
     // vector<double> x = linspace(0, a * pi);
@@ -91,11 +91,11 @@ std::vector<double> sinus(double freq)
     using namespace matplot;
     using namespace std;
     vector<double> x, y;
-    double t=360;
-    for(double i = 0; i < t; i++)
+    double t=1000;
+    for(double i = 0; i < 1; i+=0.001)
     {
         x.push_back(i);
-        y.push_back(sin((i * M_PI/180)*freq));
+        y.push_back(sin(2 * M_PI * freq * i));
     }
 
     // vector<double> x = linspace(0, a * pi);
