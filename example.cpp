@@ -138,6 +138,19 @@ int prostokatny(int a)
     return 0;
 }
 
+void print_signal(std::vector<double> signal)
+{
+    using namespace matplot;
+    std::vector<double> x;
+    for(int i = 0; i < signal.size(); i++)
+    {
+        x.push_back(i);
+    }
+
+    plot(x, signal)->line_width(1).color("red");
+    show();
+}
+
 std::vector<std::complex<double>> dft(std::vector<double> input)
 {
     using namespace std;
@@ -191,12 +204,15 @@ PYBIND11_MODULE(tp_3, m) {
     m.def("prostokatny", &prostokatny, "Funkcja generujaca wykres prostokatny");
     m.def("piloksztaltny", &piloksztaltny, "Funkcja generujaca wykres piloksztaltny");
     m.def("signals", &signals, "A function that adds two numbers");
+    m.def("print_signal", &print_signal, "A function that adds two numbers");
 
     py::class_<std::vector<double>>(m, "vector_float")
     .def(py::init<>())
     .def("clear", &std::vector<double>::clear)
     .def("reserve", &std::vector<double>::reserve)
     .def("resize", py::overload_cast<size_t>(&std::vector<double>::resize))
+    .def("front", [](const std::vector<double> &v) { return v.front(); })
+    .def("back", [](const std::vector<double> &v) { return v.back(); })
     .def("push_back", py::overload_cast<const double&>(&std::vector<double>::push_back))
     .def("pop_back", &std::vector<double>::pop_back)
     .def("__len__", [](const std::vector<double> &v) { return v.size(); }) 
