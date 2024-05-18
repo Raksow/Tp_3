@@ -8,36 +8,34 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
-#include "AudioFile/AudioFile.h"
 namespace py = pybind11;
 
-int pochodna_sygnalu(std::string name)
+std::vector<double> pochodna_sygnalu(std::vector<double> signal, std::string name)
 {
     using namespace matplot;
     using namespace std;
-    AudioFile<double> audioFile;
     vector<double> x;
     vector<double> y;
-    audioFile.load (name);
-    double samplingRate = audioFile.getSampleRate();
-    vector<double> signal = audioFile.samples[0];
-    int rozmiar=signal.size();
-    if(rozmiar>500) rozmiar=500;
+    
+    int rozmiar = signal.size();
     vector<double> derivative(rozmiar);
-    double dt = 1.0 / samplingRate;
-    for (int i = 0; i < rozmiar; i++) {
+
+    double dt = 1.0 / rozmiar;
+
+    for (int i = 0; i < rozmiar - 1; i++) 
+    {
         derivative[i] = (signal[i+1] - signal[i]) / dt;
         x.push_back(i);
     }
-    //plot(x, signal)->line_width(2).color("red");
     plot(x, derivative)->line_width(2).color("red");
+    save(name);
     xlabel("X");
     ylabel("Y");
     show();
-    return 0;
+    return derivative;
 }
 
-std::vector<double> idft(std::vector<std::complex<double>> input)
+std::vector<double> idft(std::vector<std::complex<double>> input, std::string name)
 {
     using namespace matplot;
     using namespace std;
@@ -56,11 +54,12 @@ std::vector<double> idft(std::vector<std::complex<double>> input)
         x.push_back(k);
     }
     plot(x, output)->line_width(1).color("red");
+    save(name);
     show();
     return output;
 }
 
-std::vector<double> cosinus(int freq)
+std::vector<double> cosinus(int freq, std::string name)
 {
     using namespace matplot;
     using namespace std;
@@ -75,11 +74,12 @@ std::vector<double> cosinus(int freq)
     // vector<double> x = linspace(0, a * pi);
     // vector<double> y=transform(x, [](auto x) { return cos(x); });
     plot(x, y)->line_width(1).color("red");
+    save(name);
     show();
     return y;
 }
 
-std::vector<double> sinus(double freq)
+std::vector<double> sinus(double freq, std::string name)
 {
     using namespace matplot;
     using namespace std;
@@ -94,51 +94,55 @@ std::vector<double> sinus(double freq)
     // vector<double> x = linspace(0, a * pi);
     // vector<double> y=transform(x, [](auto x) { return cos(x); });
     plot(x, y)->line_width(1).color("red");
+    save(name);
     show();
     return y;
 }
 
-int piloksztaltny(int a)
+int piloksztaltny(double freq, std::string name)
 {
     using namespace matplot;
     std::vector<double> x;
     std::vector<double> y;
-    for(int i = 0; i < 10; i++)
+
+    for(int i = 0; i < freq; i++)
     {
-       x.push_back(a*i);
+       x.push_back(i);
        y.push_back(1);
-       x.push_back(a*i+a);
+       x.push_back(i+1);
        y.push_back(-1); 
     }
     plot(x, y)->line_width(1).color("red");
+    save(name);
     show();
     return 0;
 }
 
-int prostokatny(int a)
+int prostokatny(int freq, std::string name)
 {
     using namespace matplot;
     std::vector<double> x;
     std::vector<double> y;
-    for(int i = 0; i < 10; i+=2)
+    for(int i = 0; i < freq * 2; i+=2)
     {
-       x.push_back(a*i);
+       x.push_back(freq*i);
        y.push_back(1);
-       x.push_back(a*i);
+       x.push_back(freq*i);
        y.push_back(-1); 
-       x.push_back(a*i+a);
+       x.push_back(freq*i+freq);
        y.push_back(-1);
-       x.push_back(a*i+a);
+       x.push_back(freq*i+freq);
        y.push_back(1);
-       x.push_back(a*i+2*a);
+       x.push_back(freq*i+2*freq);
        y.push_back(1);
     }
-    plot(x, y)->line_width(1).color("red");
+    plot(x, y)->line_width(2).color("red");
+    save(name);
     show();
     return 0;
 }
 
-void print_signal(std::vector<double> signal)
+void print_signal(std::vector<double> signal, std::string name)
 {
     using namespace matplot;
     std::vector<double> x;
@@ -148,17 +152,20 @@ void print_signal(std::vector<double> signal)
     }
 
     plot(x, signal)->line_width(1).color("red");
+    save(name);
     show();
 }
 
-std::vector<std::complex<double>> dft(std::vector<double> input)
+std::vector<std::complex<double>> dft(std::vector<double> input, std::string name)
 {
     using namespace std;
     using namespace matplot;
+    vector<double> x;
+    vector<double> z;
+    vector<double> y;
     int N = input.size();
     int K=N;
     vector<complex<double>> output(N, 0);
-    //output.reserve(K);
     for(int k=0;k<K;k++)
     {
         for(int n = 0; n < N; n++)
@@ -166,45 +173,55 @@ std::vector<std::complex<double>> dft(std::vector<double> input)
             output[k] += input[n] * (cos((2 * M_PI * k * n) / N) - 1i * sin((2 * M_PI * k * n) / N));
         }
     }
-    return output;
-}
-
-std::vector<std::complex<double>> signals(std::vector<double> input)
-{
-    using namespace std;
-    using namespace matplot;
-    std::vector<double> x;
-    std::vector<double> y;
-
-    std::vector<std::complex<double>> Fx=dft(input);
-    std::vector<double> z;
-    //cout<< "\n"<<"k\t" << setw(12) <<"Real\t"<< setw(12) <<"Imag\t"<< setw(12) <<"signal"<<endl;
-    int N = Fx.size();
-    for(int i=0;i<=N;i++)
+    for(int i = 0; i < N; i++)
     {
-        z.push_back(sqrt(Fx[i].real()*Fx[i].real() + Fx[i].imag()*Fx[i].imag()));
-        //cout<<i<<"\t" <<setw(12)<<Fx[i].real() <<"\t" <<setw(12)<<Fx[i].imag() <<"\t" <<setw(12)<<signal[i] <<endl;
+        z.push_back(sqrt(output[i].real()*output[i].real() + output[i].imag()*output[i].imag()));
         x.push_back(i);
         y.push_back(z[i]);
     }
-    
     plot(x, y)->line_width(1).color("red");
+    save(name);
     show();
-    return Fx;
+    return output;
 }
+
+// std::vector<std::complex<double>> signals(std::vector<double> input)
+// {
+//     using namespace std;
+//     using namespace matplot;
+//     std::vector<double> x;
+//     std::vector<double> y;
+
+//     std::vector<std::complex<double>> Fx=dft(input);
+//     std::vector<double> z;
+//     //cout<< "\n"<<"k\t" << setw(12) <<"Real\t"<< setw(12) <<"Imag\t"<< setw(12) <<"signal"<<endl;
+//     int N = Fx.size();
+//     for(int i=0;i<=N;i++)
+//     {
+//         z.push_back(sqrt(Fx[i].real()*Fx[i].real() + Fx[i].imag()*Fx[i].imag()));
+//         //cout<<i<<"\t" <<setw(12)<<Fx[i].real() <<"\t" <<setw(12)<<Fx[i].imag() <<"\t" <<setw(12)<<signal[i] <<endl;
+//         x.push_back(i);
+//         y.push_back(z[i]);
+//     }
+    
+//     plot(x, y)->line_width(1).color("red");
+//     save("signal_dft.jpg");
+//     show();
+//     return Fx;
+// }
 
 
 PYBIND11_MODULE(tp_3, m) {
     m.doc() = "pybind11 example plugin"; // optional module docstring
 
     m.def("pochodna_sygnalu", &pochodna_sygnalu,"Funkcja generujaca pochodna sygnalu");
-    m.def("idft", &idft,"Funkcja generujaca pochodna sygnalu");
+    m.def("idft", &idft,"Funkcja odwracajaca dft");
     m.def("cosinus", &cosinus, "Funkcja generujaca wykres cosinusa");
     m.def("sinus", &sinus, "Funkcja generujaca wykres sinusa");
     m.def("prostokatny", &prostokatny, "Funkcja generujaca wykres prostokatny");
     m.def("piloksztaltny", &piloksztaltny, "Funkcja generujaca wykres piloksztaltny");
-    m.def("signals", &signals, "A function that adds two numbers");
-    m.def("print_signal", &print_signal, "A function that adds two numbers");
+    m.def("dft", &dft, "Funkcja ktora zmienia sygnal na dft");
+    m.def("print_signal", &print_signal, "Funkcja ktora drukuje sygnal");
 
     py::class_<std::vector<double>>(m, "vector_float")
     .def(py::init<>())
